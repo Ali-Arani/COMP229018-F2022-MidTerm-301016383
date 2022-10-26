@@ -14,7 +14,7 @@ module.exports.todoList = function(req, res, next) {
         {
             res.render('todo/list', {
                 title: 'To-Do List', 
-                TodoList: todoList,
+                todo: todoList,
                 userName: req.user ? req.user.username : ''
             })            
         }
@@ -46,10 +46,26 @@ module.exports.details = (req, res, next) => {
 
 // Gets a todo by id and renders the Edit form using the add_edit.ejs template
 module.exports.displayEditPage = (req, res, next) => {
-    
-    // ADD YOUR CODE HERE
+    let id = req.params.id;
 
+    TodoModel.findById(id, (err, nameToEdit) => {
+        if(err)
+        {
+            console.log(err);
+            res.end(err);
+        }
+        else
+        {
+            //show the edit view
+            res.render('todo/add_edit', {
+                title: 'Edit todo list', 
+                todo: nameToEdit,
+                userName: req.user ? req.user.username : ''
+            })
+        }
+    });
 }
+
 
 // Processes the data submitted from the Edit form to update a todo
 module.exports.processEditPage = (req, res, next) => {
@@ -66,20 +82,52 @@ module.exports.processEditPage = (req, res, next) => {
     });
 
     // ADD YOUR CODE HERE
+    TodoModel.updateOne({_id: id}, updatedName, (err) => {
+        if(err)
+        {
+            console.log(err);
+            res.end(err);
+        }
+        else
+        {
+            // console.log(req.body);
+            // refresh the todolist
+                res.redirect('/todo/list');
+        }
+    });
 
 }
 
 // Deletes a todo based on its id.
 module.exports.performDelete = (req, res, next) => {
 
-    // ADD YOUR CODE HERE
+    let id = req.params.id;
 
-}
+    TodoModel.remove({_id: id}, (err) => {
+         if(err)
+         {
+             console.log(err);
+             res.end(err);
+         }
+         else
+         {
+             
+             res.redirect('/todo/list');         }
+     });
+ }
+
+
 
 // Renders the Add form using the add_edit.ejs template
 module.exports.displayAddPage = (req, res, next) => {
 
-    // ADD YOUR CODE HERE          
+    let newName = TodoModel();
+
+    res.render('todo/add_edit', {
+        title: 'Add a new todo',
+        todo: newName,
+        userName: req.user ? req.user.username : ''
+    })            
 
 }
 
@@ -96,5 +144,17 @@ module.exports.processAddPage = (req, res, next) => {
     });
 
     // ADD YOUR CODE HERE
+    TodoModel.create(newName, (err, todo) =>{
+        if(err)
+        {
+            console.log(err);
+            res.end(err);
+        }
+        else
+        {
+            // refresh the book list
+             res.redirect('/todo/list');
+        }
+    });
     
 }
