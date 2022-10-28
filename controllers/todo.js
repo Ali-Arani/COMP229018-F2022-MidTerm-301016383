@@ -134,7 +134,7 @@ module.exports.processAddPage = (req, res, next) => {
         }
         else
         {
-            // refresh the book list
+            // refresh the todo list
              res.redirect('/todo/list');
         }
     });
